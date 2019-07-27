@@ -8,55 +8,60 @@
 body {
     font-family: Calibri Light;
 }
-.convert-button {
-    width: 65px;
+button.btn {
+    width: 50px;
+    margin-left: 0.5em;
 }
 </style>
 <title>Rows Converter</title>
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container collapse navbar-collapse">
+        <nav class="container-fluid navbar navbar-expand-lg navbar-light bg-light">
+            <div class="collapse navbar-collapse">
                 <div class="navbar-nav font-weight-bold">
-                    <a @click="updateRoute('#Text')" v-bind:class="{ active: isTextPage }" class="nav-item nav-link" href="#Text">Text</a>
-                    <a @click="updateRoute('#SN')" v-bind:class="{ active: isSNPage }" class="nav-item nav-link" href="#SN">Scientific Notation</a>
+                    <a @click="updateRoute('#TEXT')" v-bind:class="{ active: isTextPage }" class="nav-item nav-link pl-0" href="#TEXT">TEXT CONVERTER</a>
+                    <a @click="updateRoute('#SN')" v-bind:class="{ active: isSNPage }" class="nav-item nav-link" href="#SN">SCIENTIFIC NOTATION</a>
                 </div>
             </div>
         </nav>
-        <div class="container">
+        <div class="container-fluid">
             <div class="row mt-3">
-                <div class="col-5 d-flex flex-column">
+                <div class="col-6 d-flex flex-column">
                     <textarea v-model="input" class="form-control" rows="20"></textarea>
                     <div class="mt-2">
                         <div class="form-group row">
-                            <label class="col-lg-2 col-form-label">Total</label>
-                            <div class="col-lg-4">
+                            <div class="col-lg-3 d-flex">
+                                <label class="col-form-label mr-2">TOTAL</label>
                                 <input type="text" v-model="inputTotalNumber" class="form-control-plaintext" />
                             </div>
-                            <label class="col-lg-2 col-form-label">Duplicate</label>
-                            <div class="col-lg-4">
+                            <div class="col-lg-3 d-flex mr-auto">
+                                <label class="col-form-label mr-2">DUPLICATE</label>
                                 <input type="text" v-model="inputDuplicateNumber" class="form-control-plaintext" />
+                            </div>
+                            <div class="col-lg-4 d-flex justify-content-end">
+                                <template v-if="isTextPage">
+                                    <button @click="splitByComma('\'')" class="btn btn-primary">
+                                        <div><i class="fas fa-quote-right"></i></div>
+                                    </button>
+                                    <button @click="splitByComma('')" class="btn btn-secondary">
+                                        <div><i class="fas fa-angle-double-right"></i></div>
+                                    </button>
+                                </template>
+                                <template v-else-if="isSNPage">
+                                    <button @click="convertToNumber" class="btn btn-success">
+                                        <div><i class="fab fa-edge"></i></div>
+                                    </button>
+                                </template>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-2 my-auto pb-5">
-                    <div class="d-flex flex-column align-items-center">
-                        <template v-if="isTextPage">
-                            <button @click="splitByComma('\'')" class="btn btn-primary convert-button"> '>' </button>
-                            <button @click="splitByComma('')" class="btn btn-secondary convert-button mt-3"> > </button>
-                        </template>
-                        <template v-else-if="isSNPage">
-                            <button @click="convertToNumber" class="btn btn-success convert-button"> > </button>
-                        </template>
-                    </div>
-                </div>
-                <div class="col-5 d-flex flex-column">
+                <div class="col-6 d-flex flex-column">
                     <textarea v-model="output" class="form-control" rows="20" readonly></textarea>
                     <div class="mt-2">
                         <div class="form-group row">
-                            <label class="col-lg-2 col-form-label">Total</label>
+                            <label class="col-lg-2 col-form-label">TOTAL</label>
                             <div class="col-lg-10">
                                 <input type="text" v-model="outputTotalNUmber" class="form-control-plaintext" />
                             </div>
@@ -71,6 +76,7 @@ body {
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/js/all.min.js"></script>
 
     <script>
         var app = new Vue({
@@ -82,7 +88,7 @@ body {
             },
             computed: {
                 isTextPage: function() {
-                    return this.currentRoute === "" || this.currentRoute === "#Text";
+                    return this.currentRoute === "" || this.currentRoute === "#TEXT";
                 },
                 isSNPage: function() {
                     return this.currentRoute === "#SN";
@@ -109,26 +115,18 @@ body {
             methods: {
                 updateRoute: function (route) {
                     this.currentRoute = route;
-                    console.log(this.currentRoute);
+                    this.input = this.output = "";
                 },
                 splitByComma: function (modifier) {
                     var rows = this.rowsWithoutEmpty;
-                    rows = rows.filter(function(item, pos) {
-                        return rows.indexOf(item) == pos;
-                    });
-                    for (var i = 0; i < rows.length; i++) {
-                        rows[i] = modifier + rows[i] + modifier;
-                    }
+                    rows = rows.filter((element, index) => rows.indexOf(element) == index);
+                    rows.forEach((element, index) => rows[index] = modifier + element + modifier);
                     this.output = rows.join(",\n");
                 },
                 convertToNumber: function() {
                     var rows = this.rowsWithoutEmpty;
-                    rows = rows.filter(function(item, pos) {
-                        return rows.indexOf(item) == pos;
-                    });
-                    for (var i = 0; i < rows.length; i++) {
-                        rows[i] = Number(rows[i]);
-                    }
+                    rows = rows.filter((element, index) => rows.indexOf(element) == index);
+                    rows.forEach((element, index) => rows[index] = Number(element));
                     this.output = rows.join(",\n");
                 }
             }
