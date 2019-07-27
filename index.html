@@ -5,69 +5,134 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <style>
-.conver-button {
-    width: 77px;
+body {
+    font-family: Calibri Light;
+}
+.convert-button {
+    width: 65px;
 }
 </style>
 <title>Rows Converter</title>
 </head>
 <body>
-    <div class="container">
-        <form>
-            <div class="row mt-5">
-                <div class="col-5">
-                    <textarea id="inputArea" class="form-control h-100 w-100" rows="20"></textarea>
-                </div>
-                <div class="col-2 my-auto">
-                    <div class="d-flex flex-column align-items-center">
-                        <button type="button" class="btn btn-primary conver-button" onclick="convert(true)"> '>' </button>
-                        <button type="button" class="btn btn-secondary conver-button mt-3" onclick="convert(false)"> > </button>
-                    </div>
-                </div>
-                <div class="col-5">
-                    <textarea id="oputArea" class="form-control h-100 w-100" rows="20"></textarea>
+    <div id="app">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container collapse navbar-collapse">
+                <div class="navbar-nav font-weight-bold">
+                    <a @click="updateRoute('#Text')" v-bind:class="{ active: isTextPage }" class="nav-item nav-link" href="#Text">Text</a>
+                    <a @click="updateRoute('#SN')" v-bind:class="{ active: isSNPage }" class="nav-item nav-link" href="#SN">Scientific Notation</a>
                 </div>
             </div>
-        </form>
-        <div class="row">
-            <input type="text" id="duplicateInput" />
-            <input type="text" id="inputCount" />
-            <input type="text" id="outputCount" />
+        </nav>
+        <div class="container">
+            <div class="row mt-3">
+                <div class="col-5 d-flex flex-column">
+                    <textarea v-model="input" class="form-control" rows="20"></textarea>
+                    <div class="mt-2">
+                        <div class="form-group row">
+                            <label class="col-lg-2 col-form-label">Total</label>
+                            <div class="col-lg-4">
+                                <input type="text" v-model="inputTotalNumber" class="form-control-plaintext" />
+                            </div>
+                            <label class="col-lg-2 col-form-label">Duplicate</label>
+                            <div class="col-lg-4">
+                                <input type="text" v-model="inputDuplicateNumber" class="form-control-plaintext" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-2 my-auto pb-5">
+                    <div class="d-flex flex-column align-items-center">
+                        <template v-if="isTextPage">
+                            <button @click="splitByComma('\'')" class="btn btn-primary convert-button"> '>' </button>
+                            <button @click="splitByComma('')" class="btn btn-secondary convert-button mt-3"> > </button>
+                        </template>
+                        <template v-else-if="isSNPage">
+                            <button @click="convertToNumber" class="btn btn-success convert-button"> > </button>
+                        </template>
+                    </div>
+                </div>
+                <div class="col-5 d-flex flex-column">
+                    <textarea v-model="output" class="form-control" rows="20" readonly></textarea>
+                    <div class="mt-2">
+                        <div class="form-group row">
+                            <label class="col-lg-2 col-form-label">Total</label>
+                            <div class="col-lg-10">
+                                <input type="text" v-model="outputTotalNUmber" class="form-control-plaintext" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <script>
-        function convert(isSingleQuotationNeeded) {
-            var modifier = isSingleQuotationNeeded ? "'" : "";
-            var input = document.getElementById("inputArea").value;
-            if (input == null || input == "") {
-                return;
-            }
 
-            var rows = input.split("\n").filter(item => item !== "");
-            var duplicateCount = 0;
-            var inputSize = rows.length;
-            rows = rows.filter(function(item, pos) {
-                var isDuplicate = rows.indexOf(item) != pos;
-                if (isDuplicate) {
-                    duplicateCount++;
-                }
-                return !isDuplicate;
-            });
-            var outputSize = rows.length;
-            for (var i = 0; i < outputSize; i++) {
-                rows[i] = modifier + rows[i] + modifier;
-            }
-            var output = rows.join(",\n");
-            document.getElementById("oputArea").value = output;
-            document.getElementById("duplicateInput").value = duplicateCount;
-            document.getElementById("inputCount").value = inputSize;
-            document.getElementById("outputCount").value = outputSize;
-        }
-    </script>
-
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                currentRoute: window.location.hash,
+                input: '',
+                output: ''
+            },
+            computed: {
+                isTextPage: function() {
+                    return this.currentRoute === "" || this.currentRoute === "#Text";
+                },
+                isSNPage: function() {
+                    return this.currentRoute === "#SN";
+                },
+                rowsWithoutEmpty: function() {
+                    return this.input.split("\n").filter(item => item !== "");
+                },
+                inputTotalNumber: function () {
+                    return this.rowsWithoutEmpty.length;
+                },
+                inputDuplicateNumber: function () {
+                    var duplicateCount = 0;
+                    this.rowsWithoutEmpty.forEach((element, index) => {
+                        if (this.rowsWithoutEmpty.indexOf(element) != index) {
+                            duplicateCount++;
+                        }
+                    });
+                    return duplicateCount;
+                },
+                outputTotalNUmber: function() {
+                    return this.output.split("\n").filter(item => item !== "").length;
+                }
+            },
+            methods: {
+                updateRoute: function (route) {
+                    this.currentRoute = route;
+                    console.log(this.currentRoute);
+                },
+                splitByComma: function (modifier) {
+                    var rows = this.rowsWithoutEmpty;
+                    rows = rows.filter(function(item, pos) {
+                        return rows.indexOf(item) == pos;
+                    });
+                    for (var i = 0; i < rows.length; i++) {
+                        rows[i] = modifier + rows[i] + modifier;
+                    }
+                    this.output = rows.join(",\n");
+                },
+                convertToNumber: function() {
+                    var rows = this.rowsWithoutEmpty;
+                    rows = rows.filter(function(item, pos) {
+                        return rows.indexOf(item) == pos;
+                    });
+                    for (var i = 0; i < rows.length; i++) {
+                        rows[i] = Number(rows[i]);
+                    }
+                    this.output = rows.join(",\n");
+                }
+            }
+        });
+    </script>
 </body>
 </html>
