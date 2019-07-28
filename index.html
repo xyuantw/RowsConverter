@@ -8,9 +8,9 @@
 body {
     font-family: Calibri Light;
 }
-button.btn {
-    width: 50px;
-    margin-left: 0.5em;
+.hidden-textarea {
+    position: absolute;
+    left: -9999px;
 }
 </style>
 <title>Rows Converter</title>
@@ -29,42 +29,51 @@ button.btn {
             <div class="row mt-3">
                 <div class="col-6 d-flex flex-column">
                     <textarea v-model="input" class="form-control" rows="35"></textarea>
-                    <div class="mt-2">
-                        <div class="form-group row">
-                            <div class="col-lg-3 d-flex">
-                                <label class="col-form-label mr-2">TOTAL</label>
-                                <input type="text" v-model="inputTotalNumber" class="form-control-plaintext" />
-                            </div>
-                            <div class="col-lg-3 d-flex mr-auto">
-                                <label class="col-form-label mr-2">DUPLICATE</label>
-                                <input type="text" v-model="inputDuplicateNumber" class="form-control-plaintext" />
-                            </div>
-                            <div class="col-lg-4 d-flex justify-content-end">
-                                <template v-if="isTextPage">
-                                    <button @click="splitByComma('\'')" class="btn btn-primary">
-                                        <div><i class="fas fa-quote-right"></i></div>
-                                    </button>
-                                    <button @click="splitByComma('')" class="btn btn-secondary">
-                                        <div><i class="fas fa-angle-double-right"></i></div>
-                                    </button>
-                                </template>
-                                <template v-else-if="isSNPage">
-                                    <button @click="convertToNumber" class="btn btn-success">
-                                        <div><i class="fab fa-edge"></i></div>
-                                    </button>
-                                </template>
-                            </div>
+                    <div class="form-group row mt-2">
+                        <div class="col-lg-3 d-flex">
+                            <label class="col-form-label mr-2">TOTAL</label>
+                            <input v-model="inputTotalNumber" type="text" class="form-control-plaintext" />
+                        </div>
+                        <div class="col-lg-3 d-flex mr-auto">
+                            <label class="col-form-label mr-2">DUPLICATE</label>
+                            <input v-model="inputDuplicateNumber" type="text" class="form-control-plaintext" />
+                        </div>
+                        <div class="col-lg-4 d-flex justify-content-end">
+                            <template v-if="isTextPage">
+                                <button class="btn btn-primary" @click="splitByComma('\'')">
+                                    <div><i class="fas fa-quote-right"></i></div>
+                                </button>
+                                <button class="btn btn-secondary ml-2" @click="splitByComma('')">
+                                    <div><i class="fas fa-angle-double-right"></i></div>
+                                </button>
+                            </template>
+                            <template v-else-if="isSNPage">
+                                <button class="btn btn-success" @click="convertToNumber">
+                                    <div><i class="fab fa-edge"></i></div>
+                                </button>
+                            </template>
                         </div>
                     </div>
                 </div>
                 <div class="col-6 d-flex flex-column">
-                    <textarea v-model="output" class="form-control" rows="35" readonly></textarea>
-                    <div class="mt-2">
-                        <div class="form-group row">
-                            <label class="col-lg-2 col-form-label">TOTAL</label>
-                            <div class="col-lg-10">
-                                <input type="text" v-model="outputTotalNUmber" class="form-control-plaintext" />
-                            </div>
+                    <textarea v-model="output" id="outputTextarea0" class="form-control" rows="35" readonly></textarea>
+                    <div class="form-group row mt-2">
+                        <div class="col-lg-3 d-flex">
+                            <label class="col-form-label mr-2">TOTAL</label>
+                            <input v-model="outputTotalNUmber" type="text" class="form-control-plaintext" />
+                        </div>
+                        <div class="col-lg-4 ml-auto d-flex justify-content-end">
+                            <button v-if="this.outputTotalNUmber <= this.sliceLimit" class="btn btn-outline-secondary" @click="copyOutput(0)">
+                                <div><i class="fas fa-clipboard"></i></div>
+                            </button>
+                            <template v-else>
+                                <div v-for="outputSlice in outputSliceArray">
+                                    <textarea v-model="outputSlice.content" v-bind:id="'outputTextarea' + outputSlice.id" class="hidden-textarea"></textarea>
+                                    <button class="btn btn-outline-secondary ml-1" @click="copyOutput(outputSlice.id)">
+                                        <div class="d-flex align-items-center"><i class="fas fa-clipboard"></i><span class="ml-1">{{ outputSlice.title }}</span></div>
+                                    </button>
+                                </div>
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -84,7 +93,8 @@ button.btn {
             data: {
                 currentRoute: window.location.hash,
                 input: '',
-                output: ''
+                output: '',
+                sliceLimit: 500
             },
             computed: {
                 isTextPage: function() {
@@ -93,23 +103,42 @@ button.btn {
                 isSNPage: function() {
                     return this.currentRoute === "#SN";
                 },
-                rowsWithoutEmpty: function() {
+                inputArray: function() {
                     return this.input.split("\n").filter(item => item !== "");
                 },
                 inputTotalNumber: function () {
-                    return this.rowsWithoutEmpty.length;
+                    return this.inputArray.length;
                 },
                 inputDuplicateNumber: function () {
                     var duplicateCount = 0;
-                    this.rowsWithoutEmpty.forEach((element, index) => {
-                        if (this.rowsWithoutEmpty.indexOf(element) != index) {
+                    this.inputArray.forEach((element, index) => {
+                        if (this.inputArray.indexOf(element) != index) {
                             duplicateCount++;
                         }
                     });
                     return duplicateCount;
                 },
+                outputArray: function () {
+                    return this.output.split("\n").filter(item => item !== "");
+                },
                 outputTotalNUmber: function() {
-                    return this.output.split("\n").filter(item => item !== "").length;
+                    return this.outputArray.length;
+                },
+                outputSliceArray: function() {
+                    if (this.outputTotalNUmber <= this.sliceLimit) {
+                        return null;
+                    }
+                    var outputSliceArray = [];
+                    for (var sliceId = 1, i = 0, j = this.sliceLimit; i <= this.outputTotalNUmber; sliceId++, i = j, j += this.sliceLimit) {
+                        var content = this.outputArray.slice(i, j).join("\n");
+                        content = content[content.length-1] === "," ? content.slice(0, -1) : content;
+                        outputSliceArray.push({
+                            id: sliceId,
+                            title: i + "~" + j,
+                            content: content
+                        });
+                    }
+                    return outputSliceArray
                 }
             },
             methods: {
@@ -118,16 +147,20 @@ button.btn {
                     this.input = this.output = "";
                 },
                 splitByComma: function (modifier) {
-                    var rows = this.rowsWithoutEmpty;
+                    var rows = this.inputArray;
                     rows = rows.filter((element, index) => rows.indexOf(element) == index);
                     rows.forEach((element, index) => rows[index] = modifier + element + modifier);
                     this.output = rows.join(",\n");
                 },
                 convertToNumber: function() {
-                    var rows = this.rowsWithoutEmpty;
+                    var rows = this.inputArray;
                     rows = rows.filter((element, index) => rows.indexOf(element) == index);
                     rows.forEach((element, index) => rows[index] = Number(element));
                     this.output = rows.join(",\n");
+                },
+                copyOutput: function(id) {
+                    document.getElementById("outputTextarea" + id).select();
+                    document.execCommand("copy");
                 }
             }
         });
