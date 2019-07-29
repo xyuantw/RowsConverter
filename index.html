@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="icon" type="image/png" href="./favicon.png" />
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <style>
 body {
@@ -22,6 +23,7 @@ body {
                 <div class="navbar-nav font-weight-bold">
                     <a @click="updateRoute('#TEXT')" v-bind:class="{ active: isTextPage }" class="nav-item nav-link pl-0" href="#TEXT">TEXT CONVERTER</a>
                     <a @click="updateRoute('#SN')" v-bind:class="{ active: isSNPage }" class="nav-item nav-link" href="#SN">SCIENTIFIC NOTATION</a>
+                    <a class="nav-item nav-link" href="compare.html">COMPARE DIFFERENCE</a>
                 </div>
             </div>
         </nav>
@@ -60,10 +62,10 @@ body {
                     <div class="form-group row mt-2">
                         <div class="col-lg-3 d-flex">
                             <label class="col-form-label mr-2">TOTAL</label>
-                            <input v-model="outputTotalNUmber" type="text" class="form-control-plaintext" />
+                            <input v-model="outputTotalNumber" type="text" class="form-control-plaintext" />
                         </div>
                         <div class="col-lg-4 ml-auto d-flex justify-content-end">
-                            <button v-if="this.outputTotalNUmber <= this.sliceLimit" class="btn btn-outline-secondary" @click="copyOutput(0)">
+                            <button v-if="this.outputTotalNumber <= this.sliceLimit" class="btn btn-outline-secondary" @click="copyOutput(0)">
                                 <div><i class="fas fa-clipboard"></i></div>
                             </button>
                             <template v-else>
@@ -94,7 +96,11 @@ body {
                 currentRoute: window.location.hash,
                 input: '',
                 output: '',
-                sliceLimit: 500
+                sliceLimit: 500,
+                savedTextInput: '',
+                savedTextOutput: '',
+                savedSNInput: '',
+                savedSNOutput: ''
             },
             computed: {
                 isTextPage: function() {
@@ -106,10 +112,10 @@ body {
                 inputArray: function() {
                     return this.input.split("\n").filter(item => item !== "");
                 },
-                inputTotalNumber: function () {
+                inputTotalNumber: function() {
                     return this.inputArray.length;
                 },
-                inputDuplicateNumber: function () {
+                inputDuplicateNumber: function() {
                     var duplicateCount = 0;
                     this.inputArray.forEach((element, index) => {
                         if (this.inputArray.indexOf(element) != index) {
@@ -118,18 +124,18 @@ body {
                     });
                     return duplicateCount;
                 },
-                outputArray: function () {
+                outputArray: function() {
                     return this.output.split("\n").filter(item => item !== "");
                 },
-                outputTotalNUmber: function() {
+                outputTotalNumber: function() {
                     return this.outputArray.length;
                 },
                 outputSliceArray: function() {
-                    if (this.outputTotalNUmber <= this.sliceLimit) {
+                    if (this.outputTotalNumber <= this.sliceLimit) {
                         return null;
                     }
                     var outputSliceArray = [];
-                    for (var sliceId = 1, i = 0, j = this.sliceLimit; i <= this.outputTotalNUmber; sliceId++, i = j, j += this.sliceLimit) {
+                    for (var sliceId = 1, i = 0, j = this.sliceLimit; i <= this.outputTotalNumber; sliceId++, i = j, j += this.sliceLimit) {
                         var content = this.outputArray.slice(i, j).join("\n");
                         content = content[content.length-1] === "," ? content.slice(0, -1) : content;
                         outputSliceArray.push({
@@ -142,21 +148,39 @@ body {
                 }
             },
             methods: {
-                updateRoute: function (route) {
+                updateRoute: function(route) {
                     this.currentRoute = route;
-                    this.input = this.output = "";
+                    if (route === "#TEXT") {
+                        this.savedSNInput = this.input;
+                        if (this.savedTextInput.length !== '') {
+                            this.input = this.savedTextInput;
+                            this.output = this.savedTextOutput;
+                        }
+                    } else if (route === "#SN") {
+                        this.savedTextInput = this.input;
+                        if (this.savedSNInput.length !== '') {
+                            this.input = this.savedSNInput;
+                            this.output = this.savedSNOutput;
+                        }
+                    }
                 },
-                splitByComma: function (modifier) {
+                splitByComma: function(modifier) {
                     var rows = this.inputArray;
                     rows = rows.filter((element, index) => rows.indexOf(element) == index);
                     rows.forEach((element, index) => rows[index] = modifier + element + modifier);
                     this.output = rows.join(",\n");
+
+                    this.savedTextInput = this.input;
+                    this.savedTextOutput = this.output;
                 },
                 convertToNumber: function() {
                     var rows = this.inputArray;
                     rows = rows.filter((element, index) => rows.indexOf(element) == index);
                     rows.forEach((element, index) => rows[index] = Number(element));
                     this.output = rows.join(",\n");
+
+                    this.savedSNInput = this.input;
+                    this.savedSNOutput = this.output;
                 },
                 copyOutput: function(id) {
                     document.getElementById("outputTextarea" + id).select();
