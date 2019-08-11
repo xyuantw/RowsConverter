@@ -1,36 +1,41 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link rel="icon" type="image/png" href="./favicon.png" />
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-<style>
-body {
-    font-family: Calibri Light;
-}
-.hidden-textarea {
-    position: absolute;
-    left: -9999px;
-}
-</style>
-<title>Rows Converter</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/png" href="./favicon.png" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: Calibri Light;
+        }
+
+        .hidden-textarea {
+            position: absolute;
+            left: -9999px;
+        }
+    </style>
+    <title>Rows Converter</title>
 </head>
+
 <body>
     <div id="app">
         <nav class="container-fluid navbar navbar-expand-lg navbar-light bg-light">
             <div class="collapse navbar-collapse">
                 <div class="navbar-nav font-weight-bold">
-                    <a @click="updateRoute('#TEXT')" v-bind:class="{ active: isTextPage }" class="nav-item nav-link pl-0" href="#TEXT">TEXT CONVERTER</a>
-                    <a @click="updateRoute('#SN')" v-bind:class="{ active: isSNPage }" class="nav-item nav-link" href="#SN">SCIENTIFIC NOTATION</a>
+                    <a @click="updateRoute('#TEXT')" v-bind:class="{ active: isTextPage }"
+                        class="nav-item nav-link pl-0" href="#TEXT">TEXT CONVERTER</a>
+                    <a @click="updateRoute('#SN')" v-bind:class="{ active: isSNPage }" class="nav-item nav-link"
+                        href="#SN">SCIENTIFIC NOTATION</a>
                 </div>
             </div>
         </nav>
         <div class="container-fluid">
-            <div class="row mt-3">
+            <div class="row mt-1">
                 <div class="col-6 d-flex flex-column">
-                    <textarea v-model="input" class="form-control" rows="35"></textarea>
-                    <div class="form-group row mt-2">
+                    <div class="row mb-1">
                         <div class="col-lg-3 d-flex">
                             <label class="col-form-label mr-2">TOTAL</label>
                             <input v-model="inputTotalNumber" type="text" class="form-control-plaintext" />
@@ -55,37 +60,48 @@ body {
                             </template>
                         </div>
                     </div>
+                    <textarea v-model="input" class="form-control" rows="48"></textarea>
                 </div>
                 <div class="col-6 d-flex flex-column">
-                    <textarea v-model="output" id="outputTextarea0" class="form-control" rows="35" readonly></textarea>
-                    <div class="form-group row mt-2">
+                    <div class="row mb-1">
                         <div class="col-lg-3 d-flex">
                             <label class="col-form-label mr-2">TOTAL</label>
                             <input v-model="outputTotalNumber" type="text" class="form-control-plaintext" />
                         </div>
                         <div class="col-lg-4 ml-auto d-flex justify-content-end">
-                            <button v-if="this.outputTotalNumber <= this.sliceLimit" class="btn btn-outline-secondary" @click="copyOutput(0)">
+                            <button v-if="this.outputTotalNumber <= this.sliceLimit" class="btn btn-outline-secondary"
+                                @click="copyOutput(0)">
                                 <div><i class="fas fa-clipboard"></i></div>
                             </button>
                             <template v-else>
                                 <div v-for="outputSlice in outputSliceArray">
-                                    <textarea v-model="outputSlice.content" v-bind:id="'outputTextarea' + outputSlice.id" class="hidden-textarea"></textarea>
+                                    <textarea v-model="outputSlice.content"
+                                        v-bind:id="'outputTextarea' + outputSlice.id"
+                                        class="hidden-textarea"></textarea>
                                     <button class="btn btn-outline-secondary ml-1" @click="copyOutput(outputSlice.id)">
-                                        <div class="d-flex align-items-center"><i class="fas fa-clipboard"></i><span class="ml-1">{{ outputSlice.title }}</span></div>
+                                        <div class="d-flex align-items-center"><i class="fas fa-clipboard"></i><span
+                                                class="ml-1">{{ outputSlice.title }}</span></div>
                                     </button>
                                 </div>
                             </template>
                         </div>
                     </div>
+                    <textarea v-model="output" id="outputTextarea0" class="form-control" rows="48" readonly></textarea>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/js/all.min.js"></script>
 
     <script>
@@ -102,19 +118,19 @@ body {
                 savedSNOutput: ''
             },
             computed: {
-                isTextPage: function() {
+                isTextPage: function () {
                     return this.currentRoute === "" || this.currentRoute === "#TEXT";
                 },
-                isSNPage: function() {
+                isSNPage: function () {
                     return this.currentRoute === "#SN";
                 },
-                inputArray: function() {
+                inputArray: function () {
                     return this.input.split("\n").filter(item => item !== "");
                 },
-                inputTotalNumber: function() {
+                inputTotalNumber: function () {
                     return this.inputArray.length;
                 },
-                inputDuplicateNumber: function() {
+                inputDuplicateNumber: function () {
                     var duplicateCount = 0;
                     this.inputArray.forEach((element, index) => {
                         if (this.inputArray.indexOf(element) != index) {
@@ -123,20 +139,20 @@ body {
                     });
                     return duplicateCount;
                 },
-                outputArray: function() {
+                outputArray: function () {
                     return this.output.split("\n").filter(item => item !== "");
                 },
-                outputTotalNumber: function() {
+                outputTotalNumber: function () {
                     return this.outputArray.length;
                 },
-                outputSliceArray: function() {
+                outputSliceArray: function () {
                     if (this.outputTotalNumber <= this.sliceLimit) {
                         return null;
                     }
                     var outputSliceArray = [];
-                    for (var sliceId = 1, i = 0, j = this.sliceLimit; i <= this.outputTotalNumber; sliceId++, i = j, j += this.sliceLimit) {
+                    for (var sliceId = 1, i = 0, j = this.sliceLimit; i <= this.outputTotalNumber; sliceId++ , i = j, j += this.sliceLimit) {
                         var content = this.outputArray.slice(i, j).join("\n");
-                        content = content[content.length-1] === "," ? content.slice(0, -1) : content;
+                        content = content[content.length - 1] === "," ? content.slice(0, -1) : content;
                         outputSliceArray.push({
                             id: sliceId,
                             title: i + "~" + j,
@@ -147,7 +163,7 @@ body {
                 }
             },
             methods: {
-                updateRoute: function(route) {
+                updateRoute: function (route) {
                     this.currentRoute = route;
                     if (route === "#TEXT") {
                         this.savedSNInput = this.input;
@@ -163,7 +179,7 @@ body {
                         }
                     }
                 },
-                splitByComma: function(modifier) {
+                splitByComma: function (modifier) {
                     var rows = this.inputArray;
                     rows = rows.filter((element, index) => rows.indexOf(element) == index);
                     rows.forEach((element, index) => rows[index] = modifier + element + modifier);
@@ -172,7 +188,7 @@ body {
                     this.savedTextInput = this.input;
                     this.savedTextOutput = this.output;
                 },
-                convertToNumber: function() {
+                convertToNumber: function () {
                     var rows = this.inputArray;
                     rows = rows.filter((element, index) => rows.indexOf(element) == index);
                     rows.forEach((element, index) => rows[index] = Number(element));
@@ -181,7 +197,7 @@ body {
                     this.savedSNInput = this.input;
                     this.savedSNOutput = this.output;
                 },
-                copyOutput: function(id) {
+                copyOutput: function (id) {
                     document.getElementById("outputTextarea" + id).select();
                     document.execCommand("copy");
                 }
@@ -189,4 +205,5 @@ body {
         });
     </script>
 </body>
+
 </html>
