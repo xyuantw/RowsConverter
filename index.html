@@ -125,7 +125,9 @@
                     return this.currentRoute === "#SN";
                 },
                 inputArray: function () {
-                    return this.input.split("\n").filter(item => item !== "");
+                    var inputArray = this.input.split("\n").filter(item => item !== "");
+                    inputArray.forEach((element, index) => inputArray[index] = element.trim());
+                    return inputArray;
                 },
                 inputTotalNumber: function () {
                     return this.inputArray.length;
@@ -181,9 +183,13 @@
                 },
                 splitByComma: function (modifier) {
                     var rows = this.inputArray;
+                    console.log(rows);
+                    // reserve only "not duplicate"
                     rows = rows.filter((element, index) => rows.indexOf(element) == index);
+                    console.log(rows);
                     rows.forEach((element, index) => rows[index] = modifier + element + modifier);
                     this.output = rows.join(",\n");
+                    console.log(rows);
 
                     this.savedTextInput = this.input;
                     this.savedTextOutput = this.output;
