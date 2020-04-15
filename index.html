@@ -52,6 +52,9 @@
                                 <button class="btn btn-secondary ml-2" @click="splitByComma('')">
                                     <div><i class="fas fa-angle-double-right"></i></div>
                                 </button>
+                                <button class="btn btn-secondary ml-2" @click="splitByCommaAndRemoveLastThreeChar('')">
+                                    <div><i class="fas fa-hand-scissors"></i></div>
+                                </button>
                             </template>
                             <template v-else-if="isSNPage">
                                 <button class="btn btn-success" @click="convertToNumber">
@@ -188,6 +191,19 @@
                     rows = rows.filter((element, index) => rows.indexOf(element) == index);
                     console.log(rows);
                     rows.forEach((element, index) => rows[index] = modifier + element + modifier);
+                    this.output = rows.join(",\n");
+                    console.log(rows);
+
+                    this.savedTextInput = this.input;
+                    this.savedTextOutput = this.output;
+                },
+                splitByCommaAndRemoveLastThreeChar: function (modifier) {
+                    var rows = this.inputArray;
+                    console.log(rows);
+                    // reserve only "not duplicate"
+                    rows = rows.filter((element, index) => rows.indexOf(element) == index);
+                    console.log(rows);
+                    rows.forEach((element, index) => rows[index] = modifier + element.substring(0,element.length-3) + modifier);
                     this.output = rows.join(",\n");
                     console.log(rows);
 
